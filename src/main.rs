@@ -48,35 +48,41 @@ fn main() {
 }
 
 fn ray_colour(r: &ray::Ray) -> Pixel {
-    if hits_sphere(&point3::Point3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Pixel {
-            r: 1.0,
-            g: 0.0,
-            b: 0.0,
-        };
+    let centre = point3::Point3::new(0.0, 0.0, -1.0);
+    if let Some(t) = hits_sphere(&centre, 0.5, r) {
+        let n = (r.get_point(t) - centre).normalised();
+        0.5 * Pixel {
+            r: n.x + 1.0,
+            g: n.y + 1.0,
+            b: n.z + 1.0,
+        }
+    } else {
+        let unit_direction = r.direction.normalised();
+        let t = 0.5 * (unit_direction.y + 1.0);
+        (1.0 - t)
+            * Pixel {
+                r: 1.0,
+                g: 1.0,
+                b: 1.0,
+            }
+            + t * Pixel {
+                r: 0.5,
+                g: 0.7,
+                b: 1.0,
+            }
     }
-
-    let unit_direction = r.direction.normalised();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - t)
-        * Pixel {
-            r: 1.0,
-            g: 1.0,
-            b: 1.0,
-        }
-        + t * Pixel {
-            r: 0.5,
-            g: 0.7,
-            b: 1.0,
-        }
 }
 
-fn hits_sphere(centre: &point3::Point3, radius: f64, r: &ray::Ray) -> bool {
+fn hits_sphere(centre: &point3::Point3, radius: f64, r: &ray::Ray) -> Option<f64> {
     let o_c = r.origin - *centre;
     let a = r.direction.dot(r.direction);
     let b = 2.0 * r.direction.dot(o_c);
     let c = o_c.dot(o_c) - radius * radius;
 
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+    if discriminant > 0.0 {
+        Some((-b - discriminant.sqrt()) / (2.0 * a))
+    } else {
+        None
+    }
 }
