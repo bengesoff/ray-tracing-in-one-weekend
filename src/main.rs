@@ -75,13 +75,13 @@ fn ray_colour(r: &ray::Ray) -> Pixel {
 
 fn hits_sphere(centre: &point3::Point3, radius: f64, r: &ray::Ray) -> Option<f64> {
     let o_c = r.origin - *centre;
-    let a = r.direction.dot(r.direction);
-    let b = 2.0 * r.direction.dot(o_c);
-    let c = o_c.dot(o_c) - radius * radius;
+    let a = r.direction.quadrance();
+    let half_b = r.direction.dot(o_c);
+    let c = o_c.quadrance() - radius * radius;
 
-    let discriminant = b * b - 4.0 * a * c;
+    let discriminant = half_b * half_b - a * c;
     if discriminant > 0.0 {
-        Some((-b - discriminant.sqrt()) / (2.0 * a))
+        Some((-half_b - discriminant.sqrt()) / a)
     } else {
         None
     }
