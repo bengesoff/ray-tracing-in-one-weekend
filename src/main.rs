@@ -1,11 +1,13 @@
 mod geometry;
 mod pixel;
+mod shapes;
 
 use crate::pixel::Pixel;
 
 use crate::geometry::point3;
 use crate::geometry::ray;
 use crate::geometry::vector3;
+use crate::shapes::shape::Shape;
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
@@ -49,7 +51,11 @@ fn main() {
 
 fn ray_colour(r: &ray::Ray) -> Pixel {
     let centre = point3::Point3::new(0.0, 0.0, -1.0);
-    if let Some(t) = hits_sphere(&centre, 0.5, r) {
+    let sphere = shapes::sphere::Sphere {
+        centre,
+        radius: 0.5,
+    };
+    if let Some(t) = sphere.intersects(r, 0.0, f64::INFINITY) {
         let n = (r.get_point(t) - centre).normalised();
         0.5 * Pixel {
             r: n.x + 1.0,
@@ -70,19 +76,5 @@ fn ray_colour(r: &ray::Ray) -> Pixel {
                 g: 0.7,
                 b: 1.0,
             }
-    }
-}
-
-fn hits_sphere(centre: &point3::Point3, radius: f64, r: &ray::Ray) -> Option<f64> {
-    let o_c = r.origin - *centre;
-    let a = r.direction.quadrance();
-    let half_b = r.direction.dot(o_c);
-    let c = o_c.quadrance() - radius * radius;
-
-    let discriminant = half_b * half_b - a * c;
-    if discriminant > 0.0 {
-        Some((-half_b - discriminant.sqrt()) / a)
-    } else {
-        None
     }
 }
