@@ -1,6 +1,7 @@
 mod geometry;
 mod pixel;
 mod shapes;
+mod surface_interaction;
 
 use crate::pixel::Pixel;
 
@@ -55,8 +56,8 @@ fn ray_colour(r: &ray::Ray) -> Pixel {
         centre,
         radius: 0.5,
     };
-    if let Some(t) = sphere.intersects(r, 0.0, f64::INFINITY) {
-        let n = (r.get_point(t) - centre).normalised();
+    if let Some(interaction) = sphere.intersect(r, 0.0, f64::INFINITY) {
+        let n = interaction.n;
         0.5 * Pixel {
             r: n.x + 1.0,
             g: n.y + 1.0,

@@ -1,5 +1,6 @@
 use crate::geometry::ray;
+use crate::surface_interaction::SurfaceInteraction;
 
 pub trait Shape {
-    fn intersects(&self, r: &ray::Ray, t_min: f64, t_max: f64) -> Option<f64>;
+    fn intersect(&self, r: &ray::Ray, t_min: f64, t_max: f64) -> Option<SurfaceInteraction>;
 }

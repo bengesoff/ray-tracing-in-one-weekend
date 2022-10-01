@@ -1,6 +1,7 @@
 use super::shape::Shape;
-use crate::geometry::point3;
 use crate::geometry::ray::Ray;
+use crate::geometry::{normal3, point3};
+use crate::surface_interaction::SurfaceInteraction;
 
 pub struct Sphere {
     pub centre: point3::Point3,
@@ -8,7 +9,7 @@ pub struct Sphere {
 }
 
 impl Shape for Sphere {
-    fn intersects(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<f64> {
+    fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<SurfaceInteraction> {
         let o_c = r.origin - self.centre;
         let a = r.direction.quadrance();
         let half_b = r.direction.dot(o_c);
@@ -31,6 +32,11 @@ impl Shape for Sphere {
             }
         }
 
-        Some(root)
+        let hit_point = r.get_point(root);
+
+        Some(SurfaceInteraction {
+            p: hit_point,
+            n: normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
+        })
     }
 }
