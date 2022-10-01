@@ -1,3 +1,4 @@
+mod camera;
 mod geometry;
 mod pixel;
 mod shapes;
@@ -5,9 +6,9 @@ mod surface_interaction;
 
 use crate::pixel::Pixel;
 
+use crate::camera::Camera;
 use crate::geometry::point3;
 use crate::geometry::ray;
-use crate::geometry::vector3;
 use crate::shapes::shape::{Hittable, Shapes};
 use crate::shapes::sphere::Sphere;
 
@@ -37,17 +38,7 @@ fn main() {
     }));
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = viewport_height * aspect_ratio;
-    let focal_length = 1.0;
-
-    let origin = point3::Point3::ORIGIN;
-    let horizontal = vector3::Vector3::new(viewport_width, 0.0, 0.0);
-    let vertical = vector3::Vector3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner = origin
-        - (horizontal / 2.0)
-        - (vertical / 2.0)
-        - vector3::Vector3::new(0.0, 0.0, focal_length);
+    let camera = Camera::new();
 
     // Render
     println!("P3");
@@ -61,10 +52,7 @@ fn main() {
             let u = (i as f64) / (image_width as f64 - 1.0);
             let v = (j as f64) / (image_height as f64 - 1.0);
 
-            let r = ray::Ray::new(
-                origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
-            );
+            let r = camera.get_ray(u, v);
 
             let p = ray_colour(&r, &world);
             println!("{}", p);
