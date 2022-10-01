@@ -31,6 +31,14 @@ impl ops::Add<Pixel> for Pixel {
     }
 }
 
+impl ops::AddAssign<Pixel> for Pixel {
+    fn add_assign(&mut self, rhs: Pixel) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
+    }
+}
+
 impl ops::Mul<f64> for Pixel {
     type Output = Pixel;
 
@@ -48,5 +56,14 @@ impl ops::Mul<Pixel> for f64 {
 
     fn mul(self, rhs: Pixel) -> Self::Output {
         rhs * self
+    }
+}
+
+impl ops::DivAssign<i32> for Pixel {
+    fn div_assign(&mut self, rhs: i32) {
+        let scale = 1.0 / (rhs as f64);
+        self.r *= scale;
+        self.g *= scale;
+        self.b *= scale;
     }
 }

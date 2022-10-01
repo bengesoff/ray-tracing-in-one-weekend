@@ -4,11 +4,10 @@ mod pixel;
 mod shapes;
 mod surface_interaction;
 
-use crate::pixel::Pixel;
-
 use crate::camera::Camera;
 use crate::geometry::point3;
 use crate::geometry::ray;
+use crate::pixel::Pixel;
 use crate::shapes::shape::{Hittable, Shapes};
 use crate::shapes::sphere::Sphere;
 
@@ -17,6 +16,7 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
+    let samples_per_pixel = 100;
 
     // World
     let mut world = Shapes::new();
@@ -49,12 +49,22 @@ fn main() {
         eprintln!("Scanlines remaining: {}", j);
 
         for i in 0..image_width {
-            let u = (i as f64) / (image_width as f64 - 1.0);
-            let v = (j as f64) / (image_height as f64 - 1.0);
+            let mut p = Pixel {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+            };
+            for _ in 0..samples_per_pixel {
+                let u = (i as f64 + rand::random::<f64>()) / (image_width as f64 - 1.0);
+                let v = (j as f64 + rand::random::<f64>()) / (image_height as f64 - 1.0);
 
-            let r = camera.get_ray(u, v);
+                let r = camera.get_ray(u, v);
 
-            let p = ray_colour(&r, &world);
+                p += ray_colour(&r, &world);
+            }
+
+            p /= samples_per_pixel;
+
             println!("{}", p);
         }
     }
