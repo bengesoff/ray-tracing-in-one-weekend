@@ -8,13 +8,35 @@ use crate::pixel::Pixel;
 use crate::geometry::point3;
 use crate::geometry::ray;
 use crate::geometry::vector3;
-use crate::shapes::shape::Shape;
+use crate::shapes::shape::{Hittable, Shapes};
+use crate::shapes::sphere::Sphere;
 
 fn main() {
+    // Image
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
 
+    // World
+    let mut world = Shapes::new();
+    world.add(Box::new(Sphere {
+        centre: point3::Point3 {
+            x: 0.0,
+            y: 0.0,
+            z: -1.0,
+        },
+        radius: 0.5,
+    }));
+    world.add(Box::new(Sphere {
+        centre: point3::Point3 {
+            x: 0.0,
+            y: -100.5,
+            z: -1.0,
+        },
+        radius: 100.0,
+    }));
+
+    // Camera
     let viewport_height = 2.0;
     let viewport_width = viewport_height * aspect_ratio;
     let focal_length = 1.0;
@@ -27,6 +49,7 @@ fn main() {
         - (vertical / 2.0)
         - vector3::Vector3::new(0.0, 0.0, focal_length);
 
+    // Render
     println!("P3");
     println!("{} {}", image_width, image_height);
     println!("255");
@@ -43,20 +66,15 @@ fn main() {
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
 
-            let p = ray_colour(&r);
+            let p = ray_colour(&r, &world);
             println!("{}", p);
         }
     }
     eprintln!("Done.");
 }
 
-fn ray_colour(r: &ray::Ray) -> Pixel {
-    let centre = point3::Point3::new(0.0, 0.0, -1.0);
-    let sphere = shapes::sphere::Sphere {
-        centre,
-        radius: 0.5,
-    };
-    if let Some(interaction) = sphere.intersect(r, 0.0, f64::INFINITY) {
+fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T) -> Pixel {
+    if let Some((interaction, _)) = world.intersect(r, 0.0, f64::INFINITY) {
         let n = interaction.n;
         0.5 * Pixel {
             r: n.x + 1.0,

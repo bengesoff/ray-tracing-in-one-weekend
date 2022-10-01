@@ -1,4 +1,4 @@
-use super::shape::Shape;
+use super::shape::Hittable;
 use crate::geometry::ray::Ray;
 use crate::geometry::{normal3, point3};
 use crate::surface_interaction::SurfaceInteraction;
@@ -8,8 +8,8 @@ pub struct Sphere {
     pub radius: f64,
 }
 
-impl Shape for Sphere {
-    fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<SurfaceInteraction> {
+impl Hittable for Sphere {
+    fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<(SurfaceInteraction, f64)> {
         let o_c = r.origin - self.centre;
         let a = r.direction.quadrance();
         let half_b = r.direction.dot(o_c);
@@ -33,10 +33,13 @@ impl Shape for Sphere {
         }
 
         let hit_point = r.get_point(root);
-        Some(SurfaceInteraction::new(
-            hit_point,
-            r,
-            normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
+        Some((
+            SurfaceInteraction::new(
+                hit_point,
+                r,
+                normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
+            ),
+            root,
         ))
     }
 }
