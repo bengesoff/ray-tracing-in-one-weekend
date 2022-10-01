@@ -33,10 +33,10 @@ impl Shape for Sphere {
         }
 
         let hit_point = r.get_point(root);
-
-        Some(SurfaceInteraction {
-            p: hit_point,
-            n: normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
-        })
+        Some(SurfaceInteraction::new(
+            hit_point,
+            r,
+            normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
+        ))
     }
 }
