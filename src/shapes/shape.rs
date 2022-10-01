@@ -30,10 +30,6 @@ impl Hittable for Shapes {
             }
         }
 
-        if let Some(interaction) = hit {
-            Some((interaction, closest_t))
-        } else {
-            None
-        }
+        hit.map(|h| (h, closest_t))
     }
 }
