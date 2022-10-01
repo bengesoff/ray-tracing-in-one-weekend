@@ -48,6 +48,14 @@ fn main() {
 }
 
 fn ray_colour(r: &ray::Ray) -> Pixel {
+    if hits_sphere(&point3::Point3::new(0.0, 0.0, -1.0), 0.5, r) {
+        return Pixel {
+            r: 1.0,
+            g: 0.0,
+            b: 0.0,
+        };
+    }
+
     let unit_direction = r.direction.normalised();
     let t = 0.5 * (unit_direction.y + 1.0);
     (1.0 - t)
@@ -61,4 +69,14 @@ fn ray_colour(r: &ray::Ray) -> Pixel {
             g: 0.7,
             b: 1.0,
         }
+}
+
+fn hits_sphere(centre: &point3::Point3, radius: f64, r: &ray::Ray) -> bool {
+    let o_c = r.origin - *centre;
+    let a = r.direction.dot(r.direction);
+    let b = 2.0 * r.direction.dot(o_c);
+    let c = o_c.dot(o_c) - radius * radius;
+
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant > 0.0
 }
