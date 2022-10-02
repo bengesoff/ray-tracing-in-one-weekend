@@ -1,17 +1,18 @@
 mod camera;
 mod colour;
 mod geometry;
+mod materials;
 mod shapes;
 mod surface_interaction;
 
 use crate::camera::Camera;
 use crate::colour::Colour;
 use crate::geometry::point3;
-use crate::geometry::point3::Point3;
-use crate::geometry::ray;
 use crate::geometry::ray::Ray;
+use crate::materials::lambertian::LambertianMaterial;
 use crate::shapes::shape::{Hittable, Shapes};
 use crate::shapes::sphere::Sphere;
+use std::rc::Rc;
 
 fn main() {
     // Image
@@ -30,6 +31,11 @@ fn main() {
             z: -1.0,
         },
         radius: 0.5,
+        material: Rc::new(LambertianMaterial::new(Colour {
+            r: 0.6,
+            g: 0.6,
+            b: 0.3,
+        })),
     }));
     world.add(Box::new(Sphere {
         centre: point3::Point3 {
@@ -38,6 +44,11 @@ fn main() {
             z: -1.0,
         },
         radius: 100.0,
+        material: Rc::new(LambertianMaterial::new(Colour {
+            r: 0.5,
+            g: 0.5,
+            b: 0.5,
+        })),
     }));
 
     // Camera
@@ -75,7 +86,7 @@ fn main() {
     eprintln!("Done.");
 }
 
-fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Colour {
+fn ray_colour<T: Hittable>(r: &Ray, world: &T, depth: u8) -> Colour {
     // limit recursion
     if depth == 0 {
         return Colour {
@@ -88,12 +99,15 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Colour {
     // ignore ray hits very close to ray origin by using t_min of 0.001 instead of 0. Fixes "shadow
     // acne" problem
     if let Some((interaction, _)) = world.intersect(r, 0.001, f64::INFINITY) {
-        let target = interaction.p + interaction.n.to_vector() + random_unit_vector();
-        0.5 * ray_colour(
-            &Ray::new(interaction.p, target - interaction.p),
-            world,
-            depth - 1,
-        )
+        if let Some((scattered_ray, attenuation)) = interaction.material.scatter(r, &interaction) {
+            attenuation * ray_colour(&scattered_ray, world, depth - 1)
+        } else {
+            Colour {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+            }
+        }
     } else {
         let unit_direction = r.direction.normalised();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -108,22 +122,5 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Colour {
                 g: 0.7,
                 b: 1.0,
             }
-    }
-}
-
-fn random_unit_vector() -> Point3 {
-    Point3::ORIGIN + (random_in_unit_sphere() - Point3::ORIGIN).normalised()
-}
-
-fn random_in_unit_sphere() -> Point3 {
-    loop {
-        let p = Point3 {
-            x: -1.0 + 2.0 * rand::random::<f64>(),
-            y: -1.0 + 2.0 * rand::random::<f64>(),
-            z: -1.0 + 2.0 * rand::random::<f64>(),
-        };
-        if (p - Point3::ORIGIN).quadrance() <= 1.0 {
-            return p;
-        }
     }
 }

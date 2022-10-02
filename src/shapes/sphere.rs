@@ -1,11 +1,14 @@
 use super::shape::Hittable;
 use crate::geometry::ray::Ray;
 use crate::geometry::{normal3, point3};
+use crate::materials::material::Material;
 use crate::surface_interaction::SurfaceInteraction;
+use std::rc::Rc;
 
 pub struct Sphere {
     pub centre: point3::Point3,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -38,6 +41,7 @@ impl Hittable for Sphere {
                 hit_point,
                 r,
                 normal3::Normal3::from_vector((hit_point - self.centre) / self.radius),
+                self.material.clone(),
             ),
             root,
         ))

@@ -1,6 +1,7 @@
 use std::fmt::Formatter;
 use std::ops;
 
+#[derive(Copy, Clone)]
 pub struct Colour {
     pub r: f64,
     pub g: f64,
@@ -73,5 +74,17 @@ impl ops::DivAssign<i32> for Colour {
         self.r *= scale;
         self.g *= scale;
         self.b *= scale;
+    }
+}
+
+impl ops::Mul<Colour> for Colour {
+    type Output = Colour;
+
+    fn mul(self, rhs: Colour) -> Self::Output {
+        Self {
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
     }
 }

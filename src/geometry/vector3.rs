@@ -43,6 +43,11 @@ impl Vector3 {
     pub fn normalised(self) -> Self {
         self / self.length()
     }
+
+    pub fn almost_zero(&self) -> bool {
+        let s = 0.000_000_001;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
 }
 
 impl ops::Add<Vector3> for Vector3 {
