@@ -88,7 +88,7 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Pixel {
     // ignore ray hits very close to ray origin by using t_min of 0.001 instead of 0. Fixes "shadow
     // acne" problem
     if let Some((interaction, _)) = world.intersect(r, 0.001, f64::INFINITY) {
-        let target = interaction.p + interaction.n.to_vector() + random_in_unit_sphere();
+        let target = interaction.p + interaction.n.to_vector() + random_unit_vector();
         0.5 * ray_colour(
             &Ray::new(interaction.p, target - interaction.p),
             world,
@@ -109,6 +109,10 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Pixel {
                 b: 1.0,
             }
     }
+}
+
+fn random_unit_vector() -> Point3 {
+    Point3::ORIGIN + (random_in_unit_sphere() - Point3::ORIGIN).normalised()
 }
 
 fn random_in_unit_sphere() -> Point3 {
