@@ -1,13 +1,13 @@
 use std::fmt::Formatter;
 use std::ops;
 
-pub struct Pixel {
+pub struct Colour {
     pub r: f64,
     pub g: f64,
     pub b: f64,
 }
 
-impl Pixel {
+impl Colour {
     pub fn gamma_correct(&mut self) {
         self.r = self.r.sqrt();
         self.g = self.g.sqrt();
@@ -15,7 +15,7 @@ impl Pixel {
     }
 }
 
-impl std::fmt::Display for Pixel {
+impl std::fmt::Display for Colour {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -27,10 +27,10 @@ impl std::fmt::Display for Pixel {
     }
 }
 
-impl ops::Add<Pixel> for Pixel {
-    type Output = Pixel;
+impl ops::Add<Colour> for Colour {
+    type Output = Colour;
 
-    fn add(self, rhs: Pixel) -> Self::Output {
+    fn add(self, rhs: Colour) -> Self::Output {
         Self {
             r: self.r + rhs.r,
             g: self.g + rhs.g,
@@ -39,16 +39,16 @@ impl ops::Add<Pixel> for Pixel {
     }
 }
 
-impl ops::AddAssign<Pixel> for Pixel {
-    fn add_assign(&mut self, rhs: Pixel) {
+impl ops::AddAssign<Colour> for Colour {
+    fn add_assign(&mut self, rhs: Colour) {
         self.r += rhs.r;
         self.g += rhs.g;
         self.b += rhs.b;
     }
 }
 
-impl ops::Mul<f64> for Pixel {
-    type Output = Pixel;
+impl ops::Mul<f64> for Colour {
+    type Output = Colour;
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self {
@@ -59,15 +59,15 @@ impl ops::Mul<f64> for Pixel {
     }
 }
 
-impl ops::Mul<Pixel> for f64 {
-    type Output = Pixel;
+impl ops::Mul<Colour> for f64 {
+    type Output = Colour;
 
-    fn mul(self, rhs: Pixel) -> Self::Output {
+    fn mul(self, rhs: Colour) -> Self::Output {
         rhs * self
     }
 }
 
-impl ops::DivAssign<i32> for Pixel {
+impl ops::DivAssign<i32> for Colour {
     fn div_assign(&mut self, rhs: i32) {
         let scale = 1.0 / (rhs as f64);
         self.r *= scale;

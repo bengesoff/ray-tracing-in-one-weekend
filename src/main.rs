@@ -1,15 +1,15 @@
 mod camera;
+mod colour;
 mod geometry;
-mod pixel;
 mod shapes;
 mod surface_interaction;
 
 use crate::camera::Camera;
+use crate::colour::Colour;
 use crate::geometry::point3;
 use crate::geometry::point3::Point3;
 use crate::geometry::ray;
 use crate::geometry::ray::Ray;
-use crate::pixel::Pixel;
 use crate::shapes::shape::{Hittable, Shapes};
 use crate::shapes::sphere::Sphere;
 
@@ -52,7 +52,7 @@ fn main() {
         eprintln!("Scanlines remaining: {}", j);
 
         for i in 0..image_width {
-            let mut p = Pixel {
+            let mut p = Colour {
                 r: 0.0,
                 g: 0.0,
                 b: 0.0,
@@ -75,10 +75,10 @@ fn main() {
     eprintln!("Done.");
 }
 
-fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Pixel {
+fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Colour {
     // limit recursion
     if depth == 0 {
-        return Pixel {
+        return Colour {
             r: 0.0,
             g: 0.0,
             b: 0.0,
@@ -98,12 +98,12 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Pixel {
         let unit_direction = r.direction.normalised();
         let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t)
-            * Pixel {
+            * Colour {
                 r: 1.0,
                 g: 1.0,
                 b: 1.0,
             }
-            + t * Pixel {
+            + t * Colour {
                 r: 0.5,
                 g: 0.7,
                 b: 1.0,
