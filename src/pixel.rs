@@ -7,6 +7,14 @@ pub struct Pixel {
     pub b: f64,
 }
 
+impl Pixel {
+    pub fn gamma_correct(&mut self) {
+        self.r = self.r.sqrt();
+        self.g = self.g.sqrt();
+        self.b = self.b.sqrt();
+    }
+}
+
 impl std::fmt::Display for Pixel {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(

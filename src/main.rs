@@ -6,7 +6,9 @@ mod surface_interaction;
 
 use crate::camera::Camera;
 use crate::geometry::point3;
+use crate::geometry::point3::Point3;
 use crate::geometry::ray;
+use crate::geometry::ray::Ray;
 use crate::pixel::Pixel;
 use crate::shapes::shape::{Hittable, Shapes};
 use crate::shapes::sphere::Sphere;
@@ -16,7 +18,8 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 10;
+    let max_depth = 50 as u8;
 
     // World
     let mut world = Shapes::new();
@@ -60,10 +63,11 @@ fn main() {
 
                 let r = camera.get_ray(u, v);
 
-                p += ray_colour(&r, &world);
+                p += ray_colour(&r, &world, max_depth);
             }
 
             p /= samples_per_pixel;
+            p.gamma_correct();
 
             println!("{}", p);
         }
@@ -71,14 +75,25 @@ fn main() {
     eprintln!("Done.");
 }
 
-fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T) -> Pixel {
-    if let Some((interaction, _)) = world.intersect(r, 0.0, f64::INFINITY) {
-        let n = interaction.n;
-        0.5 * Pixel {
-            r: n.x + 1.0,
-            g: n.y + 1.0,
-            b: n.z + 1.0,
-        }
+fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T, depth: u8) -> Pixel {
+    // limit recursion
+    if depth == 0 {
+        return Pixel {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+        };
+    }
+
+    // ignore ray hits very close to ray origin by using t_min of 0.001 instead of 0. Fixes "shadow
+    // acne" problem
+    if let Some((interaction, _)) = world.intersect(r, 0.001, f64::INFINITY) {
+        let target = interaction.p + interaction.n.to_vector() + random_in_unit_sphere();
+        0.5 * ray_colour(
+            &Ray::new(interaction.p, target - interaction.p),
+            world,
+            depth - 1,
+        )
     } else {
         let unit_direction = r.direction.normalised();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -93,5 +108,18 @@ fn ray_colour<T: Hittable>(r: &ray::Ray, world: &T) -> Pixel {
                 g: 0.7,
                 b: 1.0,
             }
+    }
+}
+
+fn random_in_unit_sphere() -> Point3 {
+    loop {
+        let p = Point3 {
+            x: -1.0 + 2.0 * rand::random::<f64>(),
+            y: -1.0 + 2.0 * rand::random::<f64>(),
+            z: -1.0 + 2.0 * rand::random::<f64>(),
+        };
+        if (p - Point3::ORIGIN).quadrance() <= 1.0 {
+            return p;
+        }
     }
 }
