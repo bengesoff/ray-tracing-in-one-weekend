@@ -48,6 +48,10 @@ impl Vector3 {
         let s = 0.000_000_001;
         self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
+
+    pub fn reflect(self, normal: Vector3) -> Self {
+        self - 2.0 * self.dot(normal) * normal
+    }
 }
 
 impl ops::Add<Vector3> for Vector3 {
