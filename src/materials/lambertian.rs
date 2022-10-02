@@ -1,8 +1,6 @@
 use crate::colour::Colour;
-use crate::geometry::point3::Point3;
 use crate::geometry::ray::Ray;
-use crate::geometry::vector3::Vector3;
-use crate::materials::material::Material;
+use crate::materials::material::{random_unit_vector, Material};
 use crate::surface_interaction::SurfaceInteraction;
 
 pub struct LambertianMaterial {
@@ -27,22 +25,5 @@ impl Material for LambertianMaterial {
 
         let scattered = Ray::new(interaction.p, scatter_direction);
         Some((scattered, self.albedo))
-    }
-}
-
-fn random_unit_vector() -> Vector3 {
-    (random_in_unit_sphere() - Point3::ORIGIN).normalised()
-}
-
-fn random_in_unit_sphere() -> Point3 {
-    loop {
-        let p = Point3 {
-            x: -1.0 + 2.0 * rand::random::<f64>(),
-            y: -1.0 + 2.0 * rand::random::<f64>(),
-            z: -1.0 + 2.0 * rand::random::<f64>(),
-        };
-        if (p - Point3::ORIGIN).quadrance() <= 1.0 {
-            return p;
-        }
     }
 }

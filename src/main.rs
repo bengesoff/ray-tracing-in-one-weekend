@@ -61,11 +61,14 @@ fn main() {
             z: -1.0,
         },
         radius: 0.5,
-        material: Rc::new(MetalMaterial::new(Colour {
-            r: 0.8,
-            g: 0.8,
-            b: 0.8,
-        })),
+        material: Rc::new(MetalMaterial::new(
+            Colour {
+                r: 0.8,
+                g: 0.8,
+                b: 0.8,
+            },
+            0.1,
+        )),
     }));
     // right
     world.add(Box::new(Sphere {
@@ -75,11 +78,14 @@ fn main() {
             z: -1.0,
         },
         radius: 0.5,
-        material: Rc::new(MetalMaterial::new(Colour {
-            r: 0.8,
-            g: 0.6,
-            b: 0.2,
-        })),
+        material: Rc::new(MetalMaterial::new(
+            Colour {
+                r: 0.8,
+                g: 0.6,
+                b: 0.2,
+            },
+            1.0,
+        )),
     }));
 
     // Camera
