@@ -9,6 +9,7 @@ use crate::camera::Camera;
 use crate::colour::Colour;
 use crate::geometry::point3;
 use crate::geometry::ray::Ray;
+use crate::materials::dielectric::DielectricMaterial;
 use crate::materials::lambertian::LambertianMaterial;
 use crate::materials::metal::MetalMaterial;
 use crate::shapes::shape::{Hittable, Shapes};
@@ -47,11 +48,7 @@ fn main() {
             z: -1.0,
         },
         radius: 0.5,
-        material: Rc::new(LambertianMaterial::new(Colour {
-            r: 0.7,
-            g: 0.3,
-            b: 0.3,
-        })),
+        material: Rc::new(DielectricMaterial::new(1.5)),
     }));
     // left
     world.add(Box::new(Sphere {
@@ -61,16 +58,8 @@ fn main() {
             z: -1.0,
         },
         radius: 0.5,
-        material: Rc::new(MetalMaterial::new(
-            Colour {
-                r: 0.8,
-                g: 0.8,
-                b: 0.8,
-            },
-            0.1,
-        )),
+        material: Rc::new(DielectricMaterial::new(1.5)),
     }));
-    // right
     world.add(Box::new(Sphere {
         centre: point3::Point3 {
             x: 1.0,
